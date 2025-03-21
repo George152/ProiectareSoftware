@@ -33,4 +33,9 @@ public class UserController {
     public String deleteUser(@RequestParam Long id) {
         return userService.deleteUser(id);
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return "User controller is working!";
+    }
 }
