@@ -1,9 +1,10 @@
 package service;
 
 import entity.User;
-import repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import repository.UserRepository;
 
 import java.util.List;
 
@@ -14,20 +15,20 @@ public class UserService {
     private UserRepository userRepository;
 
     public List<User> getAllUsers() {
-        return (List<User>) userRepository.findAll();
+        return (List<User>) this.userRepository.findAll();
     }
 
     public User insertUser(User user) {
-        return userRepository.save(user);
+        return this.userRepository.save(user);
     }
 
     public User updateUser(User user) {
-        return userRepository.save(user);
+        return this.userRepository.save(user);
     }
 
     public String deleteUser(Long id) {
         try {
-            userRepository.deleteById(id);
+            this.userRepository.deleteById(id);
             return "Deletion Successfully";
         } catch (Exception e) {
             return "Failed to delete user with id " + id;

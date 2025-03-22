@@ -1,15 +1,14 @@
 package service;
 
 import entity.Answer;
-import repository.AnswerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import repository.AnswerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class AnswerService {
-
     @Autowired
     private AnswerRepository answerRepository;
 
