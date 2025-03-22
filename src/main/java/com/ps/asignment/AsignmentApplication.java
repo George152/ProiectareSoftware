@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"controller", "service", "com.ps.asignment"})
+@ComponentScan(basePackages = {"controller", "service", "repository", "com.ps.asignment"})
 @EntityScan(basePackages = {"entity"})
 @EnableJpaRepositories(basePackages = {"repository"})
 public class AsignmentApplication {
