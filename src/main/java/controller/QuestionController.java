@@ -22,31 +22,42 @@ public class QuestionController {
     }
 
     @Autowired
-    private UserService userService; // Injected UserService instance
-    // Find a user by ID
-
+    private UserService userService;
 
     @PostMapping("/insert")
     public Question insertQuestion(@RequestBody Question question, @RequestParam Long authorId) {
-        // Fetch the User entity by their ID
         User author = userService.findUserById(authorId);
 
-        // Set the author for the question
         if (author != null) {
             question.setAuthor(author);
         } else {
             throw new RuntimeException("User not found with id: " + authorId);
         }
 
-        // Insert the question
         return questionService.insertQuestion(question);
     }
 
 
     @PutMapping("/update")
-    public Question updateQuestion(@RequestBody Question question) {
-        return questionService.updateQuestion(question);
+    public Question updateQuestion(@RequestBody Question question, @RequestParam Long questionId, @RequestParam Long authorId) {
+        Question existingQuestion = questionService.findQuestionById(questionId);
+
+         if (existingQuestion == null) {
+            throw new RuntimeException("Question not found with id: " + questionId);
+        }
+
+         User author = userService.findUserById(authorId);
+        if (author != null) {
+            existingQuestion.setAuthor(author);
+        } else {
+            throw new RuntimeException("User not found with id: " + authorId);
+        }
+
+        existingQuestion.setContent(question.getContent());
+
+        return questionService.updateQuestion(existingQuestion);
     }
+
 
     @DeleteMapping("/deleteById")
     public String deleteQuestion(@RequestParam Long id) {

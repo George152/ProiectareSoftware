@@ -1,17 +1,24 @@
 package service;
 
 import entity.Answer;
+import entity.User;
 import repository.AnswerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AnswerService {
 
     @Autowired
     private AnswerRepository answerRepository;
+
+    public Answer findAnswerById(Long id) {
+        Optional<Answer> answerOptional = answerRepository.findById(id);
+        return answerOptional.orElseThrow(() -> new RuntimeException("Answer not found with id: " + id));
+    }
 
     public List<Answer> getAllAnswers() {
         return (List<Answer>) answerRepository.findAll();
