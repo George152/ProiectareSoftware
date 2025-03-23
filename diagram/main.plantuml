@@ -1,0 +1,126 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class Answer {
+   createdDate: Date
+   question: Question
+   content: String
+   id: Long
+   picture: String
+   author: User
+}
+class AnswerController {
+  + updateAnswer(Answer, Long, Long): Answer
+  + deleteAnswer(Long): String
+  + insertAnswer(Answer, Long, Long): Answer
+   allAnswers: List<Answer>
+}
+interface AnswerRepository << interface >>
+class AnswerService {
+  + deleteAnswer(Long): String
+  + findAnswerById(Long): Answer
+  + insertAnswer(Answer): Answer
+  + updateAnswer(Answer): Answer
+   allAnswers: List<Answer>
+}
+class AsignmentApplication {
+  + main(String[]): void
+}
+class Ban {
+   reason: String
+   moderator: User
+   id: Long
+   bannedDate: Date
+   user: User
+}
+class BanController
+class Question {
+   content: String
+   title: String
+   id: Long
+   picture: String
+   createdDate: Date
+   status: String
+   author: User
+}
+class QuestionController {
+  + deleteQuestion(Long): String
+  + updateQuestion(Question, Long, Long): Question
+  + insertQuestion(Question, Long): Question
+   allQuestions: List<Question>
+}
+interface QuestionRepository << interface >>
+class QuestionService {
+  + updateQuestion(Question): Question
+  + insertQuestion(Question): Question
+  + findQuestionById(Long): Question
+  + deleteQuestion(Long): String
+   allQuestions: List<Question>
+}
+class QuestionTag {
+   question: Question
+   tag: Tag
+}
+class QuestionTagController
+class Tag {
+   name: String
+   id: Long
+}
+class TagController
+class User {
+   password: String
+   id: Long
+   email: String
+   phoneNumber: String
+   picture: String
+   username: String
+   score: Float
+   role: String
+   isBanned: Boolean
+}
+class UserController {
+  + insertUser(User): User
+  + updateUser(User): User
+  + test(): String
+  + deleteUser(Long): String
+   allUsers: List<User>
+}
+interface UserRepository << interface >>
+class UserService {
+  + updateUser(User): User
+  + findUserById(Long): User
+  + insertUser(User): User
+  + deleteUser(Long): String
+   allUsers: List<User>
+}
+class Vote {
+   question: Question
+   voteType: Integer
+   answer: Answer
+   id: Long
+   user: User
+}
+class VoteController
+
+Answer                "1" *-[#595959,plain]-> "question\n1" Question              
+Answer                "1" *-[#595959,plain]-> "author\n1" User                  
+AnswerController      "1" *-[#595959,plain]-> "answerService\n1" AnswerService         
+AnswerController      "1" *-[#595959,plain]-> "questionService\n1" QuestionService       
+AnswerController      "1" *-[#595959,plain]-> "userService\n1" UserService           
+AnswerService         "1" *-[#595959,plain]-> "answerRepository\n1" AnswerRepository      
+Ban                   "1" *-[#595959,plain]-> "user\n1" User                  
+Question              "1" *-[#595959,plain]-> "author\n1" User                  
+QuestionController    "1" *-[#595959,plain]-> "questionService\n1" QuestionService       
+QuestionController    "1" *-[#595959,plain]-> "userService\n1" UserService           
+QuestionService       "1" *-[#595959,plain]-> "questionRepository\n1" QuestionRepository    
+QuestionTag           "1" *-[#595959,plain]-> "question\n1" Question              
+QuestionTag           "1" *-[#595959,plain]-> "tag\n1" Tag                   
+UserController        "1" *-[#595959,plain]-> "userService\n1" UserService           
+UserService           "1" *-[#595959,plain]-> "userRepository\n1" UserRepository        
+Vote                  "1" *-[#595959,plain]-> "answer\n1" Answer                
+Vote                  "1" *-[#595959,plain]-> "question\n1" Question              
+Vote                  "1" *-[#595959,plain]-> "user\n1" User                  
+@enduml
