@@ -1,14 +1,20 @@
 package controller;
 
+import dto.QuestionRequestDTO;
+import dto.QuestionResponseDTO;
 import entity.Question;
+import entity.User;
+import org.springframework.http.ResponseEntity;
 import service.QuestionService;
 import service.UserService;
-import entity.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/questions")
 public class QuestionController {
@@ -16,51 +22,65 @@ public class QuestionController {
     @Autowired
     private QuestionService questionService;
 
-    @GetMapping("/getAll")
-    public List<Question> getAllQuestions() {
-        return questionService.getAllQuestions();
-    }
-
     @Autowired
     private UserService userService;
 
+    @GetMapping("/getAll")
+    public List<QuestionResponseDTO> getAllQuestions() {
+        return questionService.getAllQuestions();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id) {
+        Optional<QuestionResponseDTO> questionOpt = questionService.getQuestionById(id);
+        if (questionOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(questionOpt.get());
+    }
+
     @PostMapping("/insert")
-    public Question insertQuestion(@RequestBody Question question, @RequestParam Long authorId) {
-        User author = userService.findUserById(authorId);
-
-        if (author != null) {
-            question.setAuthor(author);
-        } else {
-            throw new RuntimeException("User not found with id: " + authorId);
+    public ResponseEntity<QuestionResponseDTO> insertQuestion(@RequestBody QuestionRequestDTO questionDTO) {
+        if (questionDTO.getAuthor() == null || questionDTO.getAuthor().getId() == null) {
+            return ResponseEntity.badRequest().build();
         }
 
-        return questionService.insertQuestion(question);
+        User author = userService.findUserById(questionDTO.getAuthor().getId());
+        if (author == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        QuestionResponseDTO created = questionService.insertQuestion(questionDTO, author);
+        return ResponseEntity.ok(created);
     }
 
 
-    @PutMapping("/update")
-    public Question updateQuestion(@RequestBody Question question, @RequestParam Long questionId, @RequestParam Long authorId) {
-        Question existingQuestion = questionService.findQuestionById(questionId);
-
-         if (existingQuestion == null) {
-            throw new RuntimeException("Question not found with id: " + questionId);
+   /* @PostMapping("/createWithTags")
+    public ResponseEntity<QuestionResponseDTO> createQuestionWithTags(@RequestBody QuestionRequestDTO questionDTO) {
+        User author = userService.findUserById(questionDTO.getAuthorId());
+        if (author == null) {
+            return ResponseEntity.badRequest().build();
         }
 
-         User author = userService.findUserById(authorId);
-        if (author != null) {
-            existingQuestion.setAuthor(author);
-        } else {
-            throw new RuntimeException("User not found with id: " + authorId);
+        QuestionResponseDTO created = questionService.createQuestionWithTags(questionDTO, author);
+        return ResponseEntity.ok(created);
+    }*/
+
+    @PutMapping("/{id}")
+    public ResponseEntity<QuestionResponseDTO> updateQuestion(@PathVariable Long id, @RequestBody QuestionRequestDTO questionDTO) {
+        Optional<QuestionResponseDTO> updated = questionService.updateQuestion(id, questionDTO);
+        if (updated.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
-
-        existingQuestion.setContent(question.getContent());
-
-        return questionService.updateQuestion(existingQuestion);
+        return ResponseEntity.ok(updated.get());
     }
 
-
-    @DeleteMapping("/deleteById")
-    public String deleteQuestion(@RequestParam Long id) {
-        return questionService.deleteQuestion(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
+        boolean deleted = questionService.deleteQuestion(id);
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
     }
 }

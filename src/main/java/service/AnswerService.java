@@ -15,6 +15,12 @@ public class AnswerService {
     @Autowired
     private AnswerRepository answerRepository;
 
+
+
+    public List<Answer> getAnswersByQuestionId(Long questionId) {
+        return answerRepository.findByQuestionId(questionId);
+    }
+
     public Answer findAnswerById(Long id) {
         Optional<Answer> answerOptional = answerRepository.findById(id);
         return answerOptional.orElseThrow(() -> new RuntimeException("Answer not found with id: " + id));

@@ -44,6 +44,7 @@ public class UserServiceTest {
         // Act
         User result = userService.insertUser(user);
 
+
         // Assert
         assertNotNull(result);
         assertEquals("user1", result.getUsername());

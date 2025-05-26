@@ -1,16 +1,21 @@
+// controller/AnswerController.java
 package controller;
 
+import dto.AnswerRequestDTO;
+import dto.AnswerResponseDTO;
 import entity.Answer;
 import entity.Question;
 import entity.User;
 import service.AnswerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import service.QuestionService;
 import service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/answers")
 public class AnswerController {
@@ -18,62 +23,76 @@ public class AnswerController {
     @Autowired
     private AnswerService answerService;
 
-    @GetMapping("/getAll")
-    public List<Answer> getAllAnswers() {
-        return answerService.getAllAnswers();
-    }
     @Autowired
     private UserService userService;
 
     @Autowired
     private QuestionService questionService;
+
+    @GetMapping("/byQuestion/{questionId}")
+    public List<AnswerResponseDTO> getAnswersByQuestionId(@PathVariable Long questionId) {
+        return answerService.getAnswersByQuestionId(questionId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/getAll")
+    public List<AnswerResponseDTO> getAllAnswers() {
+        return answerService.getAllAnswers().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     @PostMapping("/insert")
-    public Answer insertAnswer(@RequestBody Answer answer, @RequestParam Long authorId, @RequestParam Long questionId) {
-         User author = userService.findUserById(authorId);
-        Question question = questionService.findQuestionById(questionId);
+    public AnswerResponseDTO insertAnswer(
+            @RequestBody AnswerRequestDTO answerDTO,
+            @RequestParam Long authorId,
+            @RequestParam Long questionId) {
 
-         if (author == null) {
-            throw new RuntimeException("User not found with id: " + authorId);
-        }
+        User author = userService.findUserById(authorId);
+        Question question = questionService.findQuestionEntityById(questionId);
 
-        if (question == null) {
-            throw new RuntimeException("Question not found with id: " + questionId);
-        }
-
-         answer.setAuthor(author);
+        Answer answer = new Answer();
+        answer.setAuthor(author);
         answer.setQuestion(question);
+        answer.setContent(answerDTO.getContent());
+        answer.setPicture(answerDTO.getPicture());
 
-         return answerService.insertAnswer(answer);
+        return convertToDTO(answerService.insertAnswer(answer));
     }
 
     @PutMapping("/update")
-    public Answer updateAnswer(@RequestBody Answer answer, @RequestParam Long authorId, @RequestParam Long questionId) {
+    public AnswerResponseDTO updateAnswer(
+            @RequestBody AnswerRequestDTO answerDTO,
+            @RequestParam Long answerId,
+            @RequestParam Long authorId,
+            @RequestParam Long questionId) {
 
         User author = userService.findUserById(authorId);
-        Question question = questionService.findQuestionById(questionId);
+        Question question = questionService.findQuestionEntityById(questionId);
 
-       if (author == null) {
-            throw new RuntimeException("User not found with id: " + authorId);
-        }
-
-        if (question == null) {
-            throw new RuntimeException("Question not found with id: " + questionId);
-        }
-
-         Answer existingAnswer = answerService.findAnswerById(answer.getId());
-        if (existingAnswer == null) {
-            throw new RuntimeException("Answer not found with id: " + answer.getId());
-        }
-
+        Answer existingAnswer = answerService.findAnswerById(answerId);
         existingAnswer.setAuthor(author);
         existingAnswer.setQuestion(question);
-        existingAnswer.setContent(answer.getContent());
+        existingAnswer.setContent(answerDTO.getContent());
+        existingAnswer.setPicture(answerDTO.getPicture());
 
-        return answerService.updateAnswer(existingAnswer);
+        return convertToDTO(answerService.updateAnswer(existingAnswer));
     }
 
     @DeleteMapping("/deleteById")
     public String deleteAnswer(@RequestParam Long id) {
         return answerService.deleteAnswer(id);
+    }
+
+    private AnswerResponseDTO convertToDTO(Answer answer) {
+        AnswerResponseDTO dto = new AnswerResponseDTO();
+        dto.setId(answer.getId());
+        dto.setContent(answer.getContent());
+        dto.setPicture(answer.getPicture());
+        dto.setCreatedDate(answer.getCreatedDate());
+        dto.setAuthorUsername(answer.getAuthor().getUsername());
+        dto.setQuestionId(answer.getQuestion().getId());
+        return dto;
     }
 }

@@ -1,7 +1,13 @@
 package entity;
 
+import dto.QuestionRequestDTO;
+import dto.QuestionResponseDTO;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "questions")
@@ -23,8 +29,7 @@ public class Question {
     private String content;
 
     @Column(name = "created_date", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate = new Date();
+    private LocalDateTime createdDate = LocalDateTime.now();
 
     @Column(name = "picture")
     private String picture;
@@ -32,17 +37,32 @@ public class Question {
     @Column(name = "status", nullable = false)
     private String status;
 
+    @Column(name = "tags")
+    private String tags;
+
+
+    public Question(QuestionRequestDTO questionDTO) {
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     public Question() {
     }
 
-    public Question(Long id, User author, String title, String content, Date createdDate, String picture, String status) {
+    public Question(Long id, User author, String title, String content,  LocalDateTime createdDate, String picture, String status) {
         this.id = id;
         this.author = author;
         this.title = title;
         this.content = content;
         this.createdDate = createdDate;
         this.picture = picture;
-        this.status = status;
+        this.status = "Received";
     }
 
     public Long getId() { return id; }
@@ -57,12 +77,13 @@ public class Question {
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
 
-    public Date getCreatedDate() { return createdDate; }
-    public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+    public LocalDateTime getCreatedDate() { return createdDate; }
+    public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
 
     public String getPicture() { return picture; }
     public void setPicture(String picture) { this.picture = picture; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
 }
