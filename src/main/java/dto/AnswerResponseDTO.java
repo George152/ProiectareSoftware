@@ -1,4 +1,3 @@
-// dto/AnswerResponseDTO.java
 package dto;
 
 import java.util.Date;
@@ -9,8 +8,9 @@ public class AnswerResponseDTO {
     private String content;
     private String picture;
     private Date createdDate;
-    private String authorUsername;
     private Long questionId;
+    private UserDTO author;
+
     public Long getId() {
         return id;
     }
@@ -43,14 +43,6 @@ public class AnswerResponseDTO {
         this.createdDate = createdDate;
     }
 
-    public String getAuthorUsername() {
-        return authorUsername;
-    }
-
-    public void setAuthorUsername(String authorUsername) {
-        this.authorUsername = authorUsername;
-    }
-
     public Long getQuestionId() {
         return questionId;
     }
@@ -59,9 +51,11 @@ public class AnswerResponseDTO {
         this.questionId = questionId;
     }
 
+    public UserDTO getAuthor() {
+        return author;
+    }
 
-
-
-
-    // getters și setters
+    public void setAuthor(UserDTO author) {
+        this.author = author;
+    }
 }

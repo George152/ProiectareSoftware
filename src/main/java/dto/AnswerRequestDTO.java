@@ -1,7 +1,12 @@
-// dto/AnswerRequestDTO.java
 package dto;
 
 public class AnswerRequestDTO {
+
+    private String content;
+    private String picture;
+    private Long authorId;
+    private Long questionId;
+
     public String getContent() {
         return content;
     }
@@ -33,11 +38,4 @@ public class AnswerRequestDTO {
     public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
-
-    private String content;
-    private String picture;
-    private Long authorId;
-    private Long questionId;
-
-    // getters și setters
 }

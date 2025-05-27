@@ -21,7 +21,7 @@ public class User {
     private String role;
 
     @Column(name = "score", columnDefinition = "FLOAT DEFAULT 0")
-    private Float score;
+    private Float score = 0f;
 
     @Column(name = "password", nullable = false)
     private String password;

@@ -39,59 +39,77 @@ public class VoteService {
             throw new IllegalArgumentException("User not found");
         }
 
-
         if (dto.getVoteType() == null || (dto.getVoteType() != 1 && dto.getVoteType() != -1)) {
             System.out.println("Invalid vote type: " + dto.getVoteType());
             throw new IllegalArgumentException("Vote type must be 1 (upvote) or -1 (downvote).");
         }
 
-        User user = userOpt.get();
-        System.out.println("User found: " + user.getUsername());
+        User voter = userOpt.get();
+        System.out.println("User found: " + voter.getUsername());
 
         Question question = null;
+        Answer answer = null;
+        User author = null;
+
+        // ======================== QUESTION VOTE ========================
         if (dto.getQuestionId() != null) {
-            System.out.println("Processing vote for question ID: " + dto.getQuestionId());
-
             question = questionRepository.findById(dto.getQuestionId())
-                    .orElseThrow(() -> {
-                        System.out.println("Question not found: " + dto.getQuestionId());
-                        return new IllegalArgumentException("Question not found");
-                    });
+                    .orElseThrow(() -> new IllegalArgumentException("Question not found"));
 
-            if (question.getAuthor().getId().equals(user.getId())) {
-                System.out.println("User tried to vote own question.");
+            author = question.getAuthor();
+
+            if (author.getId().equals(voter.getId())) {
                 throw new IllegalArgumentException("You cannot vote your own question.");
             }
 
-            if (voteRepository.existsByUserAndQuestion(user, question)) {
-                System.out.println("Duplicate vote on question.");
+            if (voteRepository.existsByUserAndQuestion(voter, question)) {
                 throw new IllegalArgumentException("You have already voted this question.");
             }
+
+            // Scor pentru autorul întrebării
+            if (dto.getVoteType() == 1) {
+                author.setScore((float) (author.getScore() + 2.5));
+            } else {
+                author.setScore((float) (author.getScore() - 1.5));
+            }
+
+            userRepository.save(author);
         }
 
-        Answer answer = null;
+        // ======================== ANSWER VOTE ========================
         if (dto.getAnswerId() != null) {
-            System.out.println("Processing vote for answer ID: " + dto.getAnswerId());
-
             answer = answerRepository.findById(dto.getAnswerId())
-                    .orElseThrow(() -> {
-                        System.out.println("Answer not found: " + dto.getAnswerId());
-                        return new IllegalArgumentException("Answer not found");
-                    });
+                    .orElseThrow(() -> new IllegalArgumentException("Answer not found"));
 
-            if (answer.getAuthor().getId().equals(user.getId())) {
-                System.out.println("User tried to vote own answer.");
+            author = answer.getAuthor();
+
+            if (author.getId().equals(voter.getId())) {
                 throw new IllegalArgumentException("You cannot vote your own answer.");
             }
 
-            if (voteRepository.existsByUserAndAnswer(user, answer)) {
-                System.out.println("Duplicate vote on answer.");
+            if (voteRepository.existsByUserAndAnswer(voter, answer)) {
                 throw new IllegalArgumentException("You have already voted this answer.");
             }
+
+            // Scor pentru autorul răspunsului
+            if (dto.getVoteType() == 1) {
+                author.setScore((float) (author.getScore() + 5.0));
+            } else {
+                author.setScore((float) (author.getScore() - 2.5));
+
+                // Penalizează votantul pentru downvote pe răspunsul altuia
+                if (!voter.getId().equals(author.getId())) {
+                    voter.setScore((float) (voter.getScore() - 1.5));
+                    userRepository.save(voter);
+                }
+            }
+
+            userRepository.save(author);
         }
 
+        // ======================== SALVARE VOT ========================
         Vote vote = new Vote();
-        vote.setUser(user);
+        vote.setUser(voter);
         vote.setQuestion(question);
         vote.setAnswer(answer);
         vote.setVoteType(dto.getVoteType());
@@ -101,6 +119,7 @@ public class VoteService {
 
         return mapToDTO(vote);
     }
+
 
     public List<VoteResponseDTO> getAllVotes() {
         return voteRepository.findAll().stream()

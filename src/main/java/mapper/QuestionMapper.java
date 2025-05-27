@@ -22,6 +22,7 @@ public class QuestionMapper {
         authorDTO.setId(question.getAuthor().getId());
         authorDTO.setUsername(question.getAuthor().getUsername());
         authorDTO.setEmail(question.getAuthor().getEmail());
+        authorDTO.setScore(question.getAuthor().getScore());
         dto.setAuthor(authorDTO);
 
         // Tags

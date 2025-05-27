@@ -29,17 +29,16 @@ public class AnswerController {
     @Autowired
     private QuestionService questionService;
 
-    @GetMapping("/byQuestion/{questionId}")
+    @GetMapping("/question/{questionId}")
     public List<AnswerResponseDTO> getAnswersByQuestionId(@PathVariable Long questionId) {
-        return answerService.getAnswersByQuestionId(questionId).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return answerService.getAnswersByQuestionId(questionId);
     }
+
 
     @GetMapping("/getAll")
     public List<AnswerResponseDTO> getAllAnswers() {
         return answerService.getAllAnswers().stream()
-                .map(this::convertToDTO)
+                .map(answerService::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -58,7 +57,8 @@ public class AnswerController {
         answer.setContent(answerDTO.getContent());
         answer.setPicture(answerDTO.getPicture());
 
-        return convertToDTO(answerService.insertAnswer(answer));
+        return answerService.mapToResponseDTO(answerService.insertAnswer(answer));
+
     }
 
     @PutMapping("/update")
@@ -77,7 +77,8 @@ public class AnswerController {
         existingAnswer.setContent(answerDTO.getContent());
         existingAnswer.setPicture(answerDTO.getPicture());
 
-        return convertToDTO(answerService.updateAnswer(existingAnswer));
+        return answerService.mapToResponseDTO(answerService.updateAnswer(existingAnswer));
+
     }
 
     @DeleteMapping("/deleteById")
@@ -85,14 +86,4 @@ public class AnswerController {
         return answerService.deleteAnswer(id);
     }
 
-    private AnswerResponseDTO convertToDTO(Answer answer) {
-        AnswerResponseDTO dto = new AnswerResponseDTO();
-        dto.setId(answer.getId());
-        dto.setContent(answer.getContent());
-        dto.setPicture(answer.getPicture());
-        dto.setCreatedDate(answer.getCreatedDate());
-        dto.setAuthorUsername(answer.getAuthor().getUsername());
-        dto.setQuestionId(answer.getQuestion().getId());
-        return dto;
-    }
 }
