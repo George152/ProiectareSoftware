@@ -74,6 +74,9 @@ public class User {
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public Boolean getIsBanned() { return isBanned; }
     public void setIsBanned(Boolean isBanned) { this.isBanned = isBanned; }
+
+    public Boolean getIsBanned() {
+        return isBanned;
+    }
 }

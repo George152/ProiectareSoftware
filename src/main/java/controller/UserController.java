@@ -2,10 +2,12 @@ package controller;
 
 import dto.LoginRequestDTO;
 import dto.RegisterRequestDTO;
+import dto.BanUserRequestDTO;
 import dto.UserDTO;
 import entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +68,9 @@ public class UserController {
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole());
+        dto.setIsBanned(user.getIsBanned());
+
         return dto;
     }
 
@@ -81,7 +86,7 @@ public class UserController {
         return ResponseEntity.ok(saved);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000") // Adaptează portul dacă e diferit
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestBody LoginRequestDTO loginRequest) {
         try {
@@ -90,11 +95,14 @@ public class UserController {
             if (Boolean.TRUE.equals(user.getIsBanned())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-
+            if (user.getIsBanned()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are banned from this website.");
+            }
             return ResponseEntity.ok(convertToDTO(user));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
     }
 
 
@@ -113,4 +121,37 @@ public class UserController {
     public String test() {
         return "User controller is working!";
     }
+
+    @PutMapping("/ban")
+    public ResponseEntity<User> banUser(@RequestBody BanUserRequestDTO banRequest) {
+        try {
+            System.out.println("Received ban request: " + banRequest);
+
+            User bannedUser = userService.banUser(banRequest);
+            return ResponseEntity.ok(bannedUser);
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Ban request failed: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.err.println("Unexpected error during ban: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/unban/{userId}")
+    public ResponseEntity<User> unbanUser(@PathVariable Long userId) {
+        try {
+            User unbannedUser = userService.unbanUser(userId);
+            return ResponseEntity.ok(unbannedUser);
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Unban request failed: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.err.println("Unexpected error during unban: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

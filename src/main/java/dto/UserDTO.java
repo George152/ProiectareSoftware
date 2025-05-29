@@ -39,9 +39,26 @@ public class UserDTO {
         this.email = email;
     }
 
+    public String getRole() {
+        return role;
+    }
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public Boolean getIsBanned() {
+        return isBanned;
+    }
+
+    public void setIsBanned(Boolean isBanned) {
+        this.isBanned = isBanned;
+    }
+
     private Long id;
     private String username;
     private String email;
+    private String role;
+    private Boolean isBanned;
 
     // Getteri și setteri
 }
