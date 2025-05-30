@@ -9,6 +9,16 @@ public class QuestionResponseDTO {
     private String content;
     private String picture;
     private String status;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    private String role;
     private LocalDateTime createdDate;
     private UserDTO author;
 

@@ -68,6 +68,7 @@ public class AnswerService {
         authorDTO.setId(author.getId());
         authorDTO.setUsername(author.getUsername());
         authorDTO.setScore(author.getScore());
+        authorDTO.setRole(author.getRole());
 
         dto.setAuthor(authorDTO);
 
